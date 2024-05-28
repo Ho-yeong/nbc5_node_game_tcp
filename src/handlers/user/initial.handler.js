@@ -13,7 +13,7 @@ const initialHandler = async ({ socket, userId, payload }) => {
     if (!user) {
       user = await createUser(deviceId);
     } else {
-      await updateUserLogin(user.userId);
+      await updateUserLogin(user.id);
     }
 
     // 유저 정보 응답 생성
