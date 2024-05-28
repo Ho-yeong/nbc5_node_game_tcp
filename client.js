@@ -7,13 +7,6 @@ const PACKET_TYPE_LENGTH = 1; // 패킷타입을 나타내는 1바이트
 let userId;
 let sequence;
 
-const readHeader = (buffer) => {
-  return {
-    length: buffer.readUInt32BE(0),
-    packetType: buffer.writeUInt8(TOTAL_LENGTH),
-  };
-};
-
 const createPacket = (handlerId, payload, clientVersion = '1.0.0', type, name) => {
   const protoMessages = getProtoMessages();
   const PayloadType = protoMessages[type][name];
@@ -27,7 +20,7 @@ const createPacket = (handlerId, payload, clientVersion = '1.0.0', type, name) =
 
   return {
     handlerId,
-    userId: '1',
+    userId,
     clientVersion,
     sequence: 0,
     payload: payloadBuffer,
@@ -64,13 +57,26 @@ const PORT = 5555;
 
 const client = new net.Socket();
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 client.connect(PORT, HOST, async () => {
   console.log('Connected to server');
   await loadProtos();
 
   const successPacket = createPacket(0, { deviceId: 'xxxxx' }, '1.0.0', 'initial', 'InitialPacket');
 
-  sendPacket(client, successPacket);
+  await sendPacket(client, successPacket);
+  await delay(500);
+
+  const createGamePacket = createPacket(
+    4,
+    { timestamp: Date.now() },
+    '1.0.0',
+    'game',
+    'CreateGamePayload',
+  );
+
+  await sendPacket(client, createGamePacket);
 });
 
 client.on('data', (data) => {
@@ -88,12 +94,9 @@ client.on('data', (data) => {
 
     try {
       const response = Response.decode(packet);
-
+      const responseData = JSON.parse(Buffer.from(response.data).toString());
       if (response.handlerId === 0) {
-        const responseData = JSON.parse(Buffer.from(response.data).toString());
-
         userId = responseData.userId;
-        console.log('응답 데이터:', responseData);
       }
       sequence = response.sequence;
     } catch (e) {
