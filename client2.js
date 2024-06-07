@@ -41,7 +41,7 @@ const sendPacket = (socket, packet) => {
 
   // 패킷 길이 정보를 포함한 버퍼 생성
   const packetLength = Buffer.alloc(TOTAL_LENGTH);
-  packetLength.writeUInt32BE(buffer.length + PACKET_TYPE_LENGTH, 0); // 패킷 길이에 타입 바이트 포함
+  packetLength.writeUInt32BE(buffer.length + TOTAL_LENGTH + PACKET_TYPE_LENGTH, 0); // 패킷 길이에 타입 바이트 포함
 
   // 패킷 타입 정보를 포함한 버퍼 생성
   const packetType = Buffer.alloc(PACKET_TYPE_LENGTH);
