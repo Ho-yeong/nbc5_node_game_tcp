@@ -6,7 +6,7 @@ const TOTAL_LENGTH = 4; // 전체 길이를 나타내는 4바이트
 const PACKET_TYPE_LENGTH = 1; // 패킷타입을 나타내는 1바이트
 
 let userId;
-let gameId = 'b8d5b56c-1818-473a-841e-010f5841fadd';
+let gameId = '3340eaf2-43f2-4200-9fc3-794807573715';
 let sequence = 0;
 const deviceId = 'xxxxx';
 let x = 0.0;
@@ -44,7 +44,7 @@ const sendPacket = (socket, packet) => {
 
   // 패킷 길이 정보를 포함한 버퍼 생성
   const packetLength = Buffer.alloc(TOTAL_LENGTH);
-  packetLength.writeUInt32BE(buffer.length + PACKET_TYPE_LENGTH, 0); // 패킷 길이에 타입 바이트 포함
+  packetLength.writeUInt32BE(buffer.length + TOTAL_LENGTH + PACKET_TYPE_LENGTH, 0);
 
   // 패킷 타입 정보를 포함한 버퍼 생성
   const packetType = Buffer.alloc(PACKET_TYPE_LENGTH);
@@ -63,11 +63,11 @@ const sendPong = (socket, timestamp) => {
   const pongMessage = Ping.create({ timestamp });
   const pongBuffer = Ping.encode(pongMessage).finish();
   // 패킷 길이 정보를 포함한 버퍼 생성
-  const packetLength = Buffer.alloc(4);
-  packetLength.writeUInt32BE(pongBuffer.length, 0);
+  const packetLength = Buffer.alloc(TOTAL_LENGTH);
+  packetLength.writeUInt32BE(pongBuffer.length + TOTAL_LENGTH + PACKET_TYPE_LENGTH, 0);
 
   // 패킷 타입 정보를 포함한 버퍼 생성
-  const packetType = Buffer.alloc(1);
+  const packetType = Buffer.alloc(PACKET_TYPE_LENGTH);
   packetType.writeUInt8(0, 0);
 
   // 길이 정보와 메시지를 함께 전송
