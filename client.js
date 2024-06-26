@@ -56,3 +56,9 @@ client.on('close', () => {
 client.on('error', (err) => {
   console.error('Client error:', err);
 });
+
+process.on('SIGINT', () => {
+  client.end('클라이언트가 종료됩니다.', () => {
+    process.exit(0);
+  });
+});
